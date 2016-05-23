@@ -37,16 +37,20 @@ class DioxinSpider(scrapy.Spider):
                 sampling_date_str = cells[0].xpath(".//span/text()").extract()[0].strip()
                 if sampling_date_str == "Annual Average":
                     continue
-                central_str       = cells[1].xpath(".//span/text()").extract()[0].strip()
-                tsuen_wan_str     = cells[2].xpath(".//span/text()").extract()[0].strip()
-
-                sampling_date     = None if sampling_date_str == "--" else datetime.strptime(sampling_date_str, "%d-%m-%Y")
-                central = None if central_str == "--" else float(central_str)
-                tsuen_wan = None if tsuen_wan_str == "--" else float(tsuen_wan_str)
-                d = {"central": central, "tsuen_wan": tsuen_wan, "sampling_date": sampling_date, 'month':last_month, 'year': year}
-                print d
-                scraperwiki.sqlite.save(unique_keys=["year", "month"], data=d)
-                #print "%d,%s,%s,%s" % (last_month,sampling_date, central_str, tsuen_wan_str)
+                try:
+                    central_str       = " ".join(cells[1].xpath(".//text()").extract()).strip()
+                    tsuen_wan_str       = " ".join(cells[2].xpath(".//text()").extract()).strip()
+                except:
+                    print "Error in finding cell text %d,%d,%s" % (year, last_month, cells[2].xpath(".//span/text()").extract())
+                try:
+                    sampling_date     = None if sampling_date_str in ["--", ""] else datetime.strptime(sampling_date_str, "%d-%m-%Y")
+                    central = None if central_str in ["--", ""] else float(central_str)
+                    tsuen_wan = None if tsuen_wan_str in ["--", ""] else float(tsuen_wan_str)
+                    d = {"central": central, "tsuen_wan": tsuen_wan, "sampling_date": sampling_date, 'month':last_month, 'year': year}
+                    print d
+                    scraperwiki.sqlite.save(unique_keys=["year", "month"], data=d)
+                except:
+                    print "Error in conversion %d,%d,%s,%s,%s" % (year,last_month,sampling_date_str, central_str, tsuen_wan_str)
 
  
 
