@@ -37,9 +37,10 @@ class DioxinSpider(scrapy.Spider):
                 sampling_date_str = cells[0].xpath(".//span/text()").extract()[0].strip()
                 if sampling_date_str == "Annual Average":
                     continue
-                sampling_date     = datetime.strptime(sampling_date_str, "%d-%m-%Y")
                 central_str       = cells[1].xpath(".//span/text()").extract()[0].strip()
                 tsuen_wan_str     = cells[2].xpath(".//span/text()").extract()[0].strip()
+
+                sampling_date     = None if sampling_date_str == "--" else datetime.strptime(sampling_date_str, "%d-%m-%Y")
                 central = None if central_str == "--" else float(central_str)
                 tsuen_wan = None if tsuen_wan_str == "--" else float(tsuen_wan_str)
                 d = {"central": central, "tsuen_wan": tsuen_wan, "sampling_date": sampling_date, 'month':last_month, 'year': year}
